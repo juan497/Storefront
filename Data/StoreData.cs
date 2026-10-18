@@ -102,6 +102,26 @@ public static List<Order> Orders = new()
     }
 };
 
+public static List<Invoice> Invoices = new()
+{
+    new Invoice
+    {
+        Id = 1,
+        OrderId = 1001,
+        InvoiceDate = new DateTime(2026, 10, 10),
+        PaymentStatus = "Paid"
+    },
+
+    new Invoice
+    {
+        Id = 2,
+        OrderId = 1002,
+        InvoiceDate = new DateTime(2026, 10, 12),
+        PaymentStatus = "Unpaid"
+    }
+};
+
+
 
         public static List<Customer> Customers = new()
         {

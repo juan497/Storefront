@@ -39,6 +39,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Qcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/juan/Desktop/Storefront/Views/Invoices/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSW52b2ljZXMvRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/juan/Desktop/Storefront/Views/Invoices/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSW52b2ljZXMvSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/juan/Desktop/Storefront/Views/Orders/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvT3JkZXJzL0RldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 

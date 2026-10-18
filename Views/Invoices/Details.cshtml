@@ -1,0 +1,81 @@
+
+@model Storefront.Models.Invoice
+
+@{
+    ViewData["Title"] = "Invoice";
+
+    var order = ViewBag.Order as Storefront.Models.Order;
+    var customer = ViewBag.Customer as Storefront.Models.Customer;
+}
+
+@if (order != null)
+{
+    <div class="container mt-4">
+        <h1>Storefront</h1>
+        <h2>Invoice @Model.InvoiceNumber</h2>
+
+        <hr />
+
+        <p>
+            <strong>Invoice Date:</strong>
+            @Model.InvoiceDate.ToString("MMMM dd, yyyy")
+        </p>
+
+        <p>
+            <strong>Customer:</strong>
+            @(customer == null
+                ? "Unknown"
+                : customer.FirstName + " " + customer.LastName)
+        </p>
+
+        <p>
+            <strong>Email:</strong>
+            @(customer?.Email ?? "N/A")
+        </p>
+
+        <p>
+            <strong>Order ID:</strong> @order.Id
+        </p>
+
+        <p>
+            <strong>Payment Status:</strong> @Model.PaymentStatus
+        </p>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in order.Items)
+                {
+                    <tr>
+                        <td>@item.ProductName</td>
+                        <td>@item.UnitPrice.ToString("C")</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.Subtotal.ToString("C")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <h3 class="text-end">
+            Total: @order.Total.ToString("C")
+        </h3>
+
+        <button class="btn btn-primary"
+                onclick="window.print()">
+            Print Invoice
+        </button>
+
+        <a asp-controller="Invoices"
+           asp-action="Index"
+           class="btn btn-secondary">
+            Back to Invoices
+        </a>
+    </div>
+}
