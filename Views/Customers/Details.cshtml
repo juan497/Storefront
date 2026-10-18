@@ -1,0 +1,19 @@
+
+@model Storefront.Models.Customer
+
+@{
+    ViewData["Title"] = "Customer Details";
+}
+
+<h1>Customer Details</h1>
+
+<p><strong>ID:</strong> @Model.Id</p>
+<p><strong>Name:</strong> @Model.FirstName @Model.LastName</p>
+<p><strong>Email:</strong> @Model.Email</p>
+<p><strong>City:</strong> @Model.City</p>
+
+<a asp-controller="Customers"
+   asp-action="Index"
+   class="btn btn-secondary">
+    Back to Customers
+</a>

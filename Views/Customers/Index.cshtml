@@ -1,0 +1,41 @@
+
+@model IEnumerable<Storefront.Models.Customer>
+
+@{
+    ViewData["Title"] = "Customers";
+}
+
+<h1>Customers</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>City</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var customer in Model)
+        {
+            <tr>
+                <td>@customer.Id</td>
+                <td>
+                    @customer.FirstName @customer.LastName
+                </td>
+                <td>@customer.Email</td>
+                <td>@customer.City</td>
+                <td>
+                    <a asp-controller="Customers"
+                       asp-action="Details"
+                       asp-route-id="@customer.Id">
+                        View
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
