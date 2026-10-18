@@ -1,0 +1,56 @@
+
+@model Storefront.Models.Order
+
+@{
+    ViewData["Title"] = "Order Details";
+    var customer =
+        ViewBag.Customer as Storefront.Models.Customer;
+}
+
+<h1>Order #@Model.Id</h1>
+
+<p>
+    <strong>Customer:</strong>
+    @(customer == null
+        ? "Unknown"
+        : customer.FirstName + " " + customer.LastName)
+</p>
+
+<p>
+    <strong>Order Date:</strong>
+    @Model.OrderDate.ToString("MMMM dd, yyyy")
+</p>
+
+<p><strong>Status:</strong> @Model.Status</p>
+
+<h3>Items</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Unit Price</th>
+            <th>Quantity</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.ProductName</td>
+                <td>@item.UnitPrice.ToString("C")</td>
+                <td>@item.Quantity</td>
+                <td>@item.Subtotal.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>Total: @Model.Total.ToString("C")</h3>
+
+<a asp-controller="Orders"
+   asp-action="Index"
+   class="btn btn-secondary">
+    Back to Orders
+</a>

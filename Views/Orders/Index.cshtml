@@ -1,0 +1,48 @@
+
+@model IEnumerable<Storefront.Models.Order>
+
+@{
+    ViewData["Title"] = "Orders";
+}
+
+<h1>Orders</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            var customer = Storefront.Data.StoreData.Customers
+                .FirstOrDefault(c => c.Id == order.CustomerId);
+
+            <tr>
+                <td>@order.Id</td>
+                <td>
+                    @(customer == null
+                        ? "Unknown"
+                        : customer.FirstName + " " + customer.LastName)
+                </td>
+                <td>@order.OrderDate.ToString("MMM dd, yyyy")</td>
+                <td>@order.Status</td>
+                <td>@order.Total.ToString("C")</td>
+                <td>
+                    <a asp-controller="Orders"
+                       asp-action="Details"
+                       asp-route-id="@order.Id"
+                       class="btn btn-primary btn-sm">
+                        Details
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
