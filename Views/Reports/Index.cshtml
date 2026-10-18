@@ -1,0 +1,83 @@
+
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<h1>Storefront Reports</h1>
+
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6>Total Revenue</h6>
+                <h3>
+                    @(((decimal)ViewBag.TotalRevenue).ToString("C"))
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6>Paid Orders</h6>
+                <h3>@ViewBag.PaidOrderCount</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6>Average Order Value</h6>
+                <h3>
+                    @(((decimal)ViewBag.AverageOrderValue).ToString("C"))
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2>Best-Selling Products</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Units Sold</th>
+            <th>Revenue</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in ViewBag.TopProducts)
+        {
+            <tr>
+                <td>@product.ProductName</td>
+                <td>@product.UnitsSold</td>
+                <td>@(((decimal)product.Revenue).ToString("C"))</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2>Low Inventory</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Stock Remaining</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in ViewBag.LowStockProducts)
+        {
+            <tr>
+                <td>@product.Name</td>
+                <td>@product.Category</td>
+                <td>@product.StockQuantity</td>
+            </tr>
+        }
+    </tbody>
+</table>
