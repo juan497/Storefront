@@ -1,0 +1,100 @@
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<h1>Shopping Cart</h1>
+
+@if (TempData["CartMessage"] != null)
+{
+    <div class="alert alert-info">
+        @TempData["CartMessage"]
+    </div>
+}
+
+@if (ViewBag.CartProducts.Count == 0)
+{
+    <p>Your cart is empty.</p>
+    <a asp-controller="Products"
+       asp-action="Index"
+       class="btn btn-primary">
+        Browse Products
+    </a>
+}
+else
+{
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in ViewBag.CartProducts)
+            {
+                <tr>
+                    <td>@item.Product.Name</td>
+                    <td>@item.Product.Price.ToString("C")</td>
+                    <td>
+                        <form asp-controller="Cart"
+                              asp-action="Update"
+                              method="post"
+                              class="d-flex gap-2">
+                            <input type="hidden"
+                                   name="productId"
+                                   value="@item.Product.Id" />
+
+                            <input type="number"
+                                   name="quantity"
+                                   value="@item.Quantity"
+                                   min="1"
+                                   max="@item.Product.StockQuantity"
+                                   class="form-control"
+                                   style="width: 90px"
+                                   required />
+
+                            <button type="submit"
+                                    class="btn btn-outline-primary btn-sm">
+                                Update
+                            </button>
+                        </form>
+                    </td>
+                    <td>@item.Subtotal.ToString("C")</td>
+                    <td>
+                        <form asp-controller="Cart"
+                              asp-action="Remove"
+                              method="post">
+                            <input type="hidden"
+                                   name="productId"
+                                   value="@item.Product.Id" />
+
+                            <button type="submit"
+                                    class="btn btn-outline-danger btn-sm">
+                                Remove
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="text-end">
+        <h3>Total: @(((decimal)ViewBag.Total).ToString("C"))</h3>
+
+        <a asp-controller="Products"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Continue Shopping
+        </a>
+
+        <a asp-controller="Cart"
+           asp-action="Checkout"
+           class="btn btn-success">
+            Proceed to Checkout
+        </a>
+    </div>
+}
