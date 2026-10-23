@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Orders";
+    var customerNames = (Dictionary<int, string>)ViewBag.CustomerNames;
 }
 
 <h1>Orders</h1>
@@ -21,15 +22,12 @@
     <tbody>
         @foreach (var order in Model)
         {
-            var customer = Storefront.Data.StoreData.Customers
-                .FirstOrDefault(c => c.Id == order.CustomerId);
-
             <tr>
                 <td>@order.Id</td>
                 <td>
-                    @(customer == null
-                        ? "Unknown"
-                        : customer.FirstName + " " + customer.LastName)
+                    @(customerNames.TryGetValue(order.CustomerId, out var customerName)
+                        ? customerName
+                        : "Unknown")
                 </td>
                 <td>@order.OrderDate.ToString("MMM dd, yyyy")</td>
                 <td>@order.Status</td>

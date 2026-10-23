@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Storefront.Data;
 using Storefront.Models;
 
@@ -8,6 +9,12 @@ namespace Storefront.Controllers
     public class CartController : Controller
     {
         private const string CartSessionKey = "ShoppingCart";
+        private readonly CustomerDbContext _customerDb;
+
+        public CartController(CustomerDbContext customerDb)
+        {
+            _customerDb = customerDb;
+        }
 
         private List<CartItem> GetCart()
         {
@@ -179,7 +186,7 @@ namespace Storefront.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Checkout(CheckoutViewModel model)
+        public async Task<IActionResult> Checkout(CheckoutViewModel model)
         {
             var cart = GetCart();
 
@@ -210,26 +217,23 @@ namespace Storefront.Controllers
             }
 
             // Reuse an existing customer with the same email.
-            var customer = StoreData.Customers
-                .FirstOrDefault(c =>
-                    c.Email.Equals(
-                        model.Email.Trim(),
-                        StringComparison.OrdinalIgnoreCase));
+            var email = model.Email.Trim();
+            var normalizedEmail = email.ToLower();
+            var customer = await _customerDb.Customers
+                .FirstOrDefaultAsync(c =>
+                    c.Email.ToLower() == normalizedEmail);
 
             if (customer == null)
             {
                 customer = new Customer
                 {
-                    Id = StoreData.Customers.Any()
-                        ? StoreData.Customers.Max(c => c.Id) + 1
-                        : 1,
                     FirstName = model.FirstName.Trim(),
                     LastName = model.LastName.Trim(),
-                    Email = model.Email.Trim(),
+                    Email = email,
                     City = model.City.Trim()
                 };
 
-                StoreData.Customers.Add(customer);
+                _customerDb.Customers.Add(customer);
             }
             else
             {
@@ -238,6 +242,8 @@ namespace Storefront.Controllers
                 customer.LastName = model.LastName.Trim();
                 customer.City = model.City.Trim();
             }
+
+            await _customerDb.SaveChangesAsync();
 
             var order = new Order
             {
@@ -295,7 +301,7 @@ namespace Storefront.Controllers
         }
 
         [HttpGet]
-        public IActionResult Confirmation(int id)
+        public async Task<IActionResult> Confirmation(int id)
         {
             var order = StoreData.Orders
                 .FirstOrDefault(o => o.Id == id);
@@ -305,8 +311,8 @@ namespace Storefront.Controllers
                 return NotFound();
             }
 
-            ViewBag.Customer = StoreData.Customers
-                .FirstOrDefault(c => c.Id == order.CustomerId);
+            ViewBag.Customer = await _customerDb.Customers
+                .FirstOrDefaultAsync(c => c.Id == order.CustomerId);
 
             return View(order);
         }

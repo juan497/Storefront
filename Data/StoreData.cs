@@ -120,37 +120,5 @@ public static List<Invoice> Invoices = new()
         PaymentStatus = "Unpaid"
     }
 };
-
-
-
-        public static List<Customer> Customers = new()
-        {
-            new Customer
-            {
-                Id = 1,
-                FirstName = "John",
-                LastName = "Smith",
-                Email = "john@example.com",
-                City = "Los Angeles"
-            },
-
-            new Customer
-            {
-                Id = 2,
-                FirstName = "Maria",
-                LastName = "Garcia",
-                Email = "maria@example.com",
-                City = "Huntington Park"
-            },
-
-            new Customer
-            {
-                Id = 3,
-                FirstName = "David",
-                LastName = "Lee",
-                Email = "david@example.com",
-                City = "Long Beach"
-            }
-        };
     }
 }
