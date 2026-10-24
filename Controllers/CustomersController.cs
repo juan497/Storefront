@@ -13,14 +13,17 @@ namespace Storefront.Controllers
         {
             _storeDb = storeDb;
         }
-        
-        public async Task<IActionResult> Index()
+
+        //Task<IActionResult> is Asynchronous (Non-blocking), IActionResult is synchronous (Blocking)
+        public async Task<IActionResult> Index()///http://localhost:5041/Customers
         {
             var customers = await _storeDb.Customers.ToListAsync();
 
             return View(customers);
         }
 
+
+        //http://localhost:5041/Customers/Details/4 this is an endpoint
         public async Task<IActionResult> Details(int id)
         {
             var customer = await _storeDb.Customers

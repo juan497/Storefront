@@ -1,8 +1,9 @@
 
-@model IEnumerable<Storefront.Models.Customer>
+@model IEnumerable<Storefront.Models.Customer>//• IEnumerable<...>: This is a standard C# interface that says, "Expect a collection or a list of these items."
+
 
 @{
-    ViewData["Title"] = "Customers";
+    ViewData["Title"] = "Customers";//this name is used in the _Layout.cshtml file to set the title of the page
 }
 
 <h1>Customers</h1>
@@ -20,6 +21,7 @@
 
     <tbody>
         @foreach (var customer in Model)
+        @*Once the controller passes that data over, you access the actual data inside your View using the capitalized Model keyword *@
         {
             <tr>
                 <td>@customer.Id</td>

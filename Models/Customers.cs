@@ -1,5 +1,5 @@
 
-namespace Storefront.Models
+namespace Storefront.Models//this is the namespace for the Customer model class. It is used to organize code and avoid naming conflicts. The namespace is Storefront.Models, which indicates that this class is part of the Storefront application and belongs to the Models folder.
 {
     public class Customer
     {
