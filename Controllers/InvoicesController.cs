@@ -7,37 +7,44 @@ namespace Storefront.Controllers
 {
     public class InvoicesController : Controller
     {
-        private readonly CustomerDbContext _customerDb;
+        private readonly StoreDbContext _storeDb;
 
-        public InvoicesController(CustomerDbContext customerDb)
+        public InvoicesController(StoreDbContext storeDb)
         {
-            _customerDb = customerDb;
+            _storeDb = storeDb;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View(StoreData.Invoices);
+            var invoices = await _storeDb.Invoices
+                .Include(invoice => invoice.Order)
+                .ThenInclude(order => order!.Items)
+                .OrderBy(invoice => invoice.Id)
+                .ToListAsync();
+
+            return View(invoices);
         }
 
         public async Task<IActionResult> Details(int id)
         {
-            var invoice = StoreData.Invoices
-                .FirstOrDefault(i => i.Id == id);
+            var invoice = await _storeDb.Invoices
+                .Include(invoice => invoice.Order)
+                .ThenInclude(order => order!.Items)
+                .FirstOrDefaultAsync(invoice => invoice.Id == id);
 
             if (invoice == null)
             {
                 return NotFound();
             }
 
-            var order = StoreData.Orders
-                .FirstOrDefault(o => o.Id == invoice.OrderId);
+            var order = invoice.Order;
 
             if (order == null)
             {
                 return NotFound();
             }
 
-            var customer = await _customerDb.Customers
+            var customer = await _storeDb.Customers
                 .FirstOrDefaultAsync(c => c.Id == order.CustomerId);
 
             ViewBag.Order = order;

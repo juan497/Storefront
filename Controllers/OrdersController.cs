@@ -7,37 +7,41 @@ namespace Storefront.Controllers
 {
     public class OrdersController : Controller
     {
-        private readonly CustomerDbContext _customerDb;
+        private readonly StoreDbContext _storeDb;
 
-        public OrdersController(CustomerDbContext customerDb)
+        public OrdersController(StoreDbContext storeDb)
         {
-            _customerDb = customerDb;
+            _storeDb = storeDb;
         }
 
         public async Task<IActionResult> Index()
         {
-            ViewBag.CustomerNames = await _customerDb.Customers
+            ViewBag.CustomerNames = await _storeDb.Customers
                 .ToDictionaryAsync(
                     customer => customer.Id,
                     customer => $"{customer.FirstName} {customer.LastName}");
 
-            return View(StoreData.Orders);
+            var orders = await _storeDb.Orders
+                .Include(order => order.Items)
+                .OrderBy(order => order.Id)
+                .ToListAsync();
+
+            return View(orders);
         }
 
         public async Task<IActionResult> Details(int id)
         {
-            var order = StoreData.Orders
-                .FirstOrDefault(o => o.Id == id);
+            var order = await _storeDb.Orders
+                .Include(order => order.Items)
+                .Include(order => order.Customer)
+                .FirstOrDefaultAsync(order => order.Id == id);
 
             if (order == null)
             {
                 return NotFound();
             }
 
-            var customer = await _customerDb.Customers
-                .FirstOrDefaultAsync(c => c.Id == order.CustomerId);
-
-            ViewBag.Customer = customer;
+            ViewBag.Customer = order.Customer;
 
             return View(order);
         }

@@ -9,11 +9,11 @@ namespace Storefront.Controllers
     public class CartController : Controller
     {
         private const string CartSessionKey = "ShoppingCart";
-        private readonly CustomerDbContext _customerDb;
+        private readonly StoreDbContext _storeDb;
 
-        public CartController(CustomerDbContext customerDb)
+        public CartController(StoreDbContext storeDb)
         {
-            _customerDb = customerDb;
+            _storeDb = storeDb;
         }
 
         private List<CartItem> GetCart()
@@ -35,17 +35,18 @@ namespace Storefront.Controllers
             HttpContext.Session.SetString(CartSessionKey, json);
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             var cart = GetCart();
+            var productIds = cart.Select(item => item.ProductId).ToArray();
+            var products = await _storeDb.Products
+                .Where(product => productIds.Contains(product.Id))
+                .ToDictionaryAsync(product => product.Id);
 
             var cartProducts = cart
                 .Select(item =>
                 {
-                    var product = StoreData.Products
-                        .FirstOrDefault(p => p.Id == item.ProductId);
-
-                    if (product == null)
+                    if (!products.TryGetValue(item.ProductId, out var product))
                     {
                         return null;
                     }
@@ -68,10 +69,10 @@ namespace Storefront.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Add(int productId, int quantity = 1)
+        public async Task<IActionResult> Add(int productId, int quantity = 1)
         {
-            var product = StoreData.Products
-                .FirstOrDefault(p => p.Id == productId);
+            var product = await _storeDb.Products
+                .FirstOrDefaultAsync(p => p.Id == productId);
 
             if (product == null)
             {
@@ -121,7 +122,7 @@ namespace Storefront.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Update(int productId, int quantity)
+        public async Task<IActionResult> Update(int productId, int quantity)
         {
             var cart = GetCart();
             var item = cart.FirstOrDefault(
@@ -132,8 +133,8 @@ namespace Storefront.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var product = StoreData.Products
-                .FirstOrDefault(p => p.Id == productId);
+            var product = await _storeDb.Products
+                .FirstOrDefaultAsync(p => p.Id == productId);
 
             if (product == null)
             {
@@ -201,12 +202,15 @@ namespace Storefront.Controllers
             }
 
             // Recheck stock at checkout.
+            var productIds = cart.Select(item => item.ProductId).ToArray();
+            var products = await _storeDb.Products
+                .Where(product => productIds.Contains(product.Id))
+                .ToDictionaryAsync(product => product.Id);
+
             foreach (var item in cart)
             {
-                var product = StoreData.Products
-                    .FirstOrDefault(p => p.Id == item.ProductId);
-
-                if (product == null || item.Quantity > product.StockQuantity)
+                if (!products.TryGetValue(item.ProductId, out var product)
+                    || item.Quantity > product.StockQuantity)
                 {
                     ModelState.AddModelError(
                         "",
@@ -219,7 +223,7 @@ namespace Storefront.Controllers
             // Reuse an existing customer with the same email.
             var email = model.Email.Trim();
             var normalizedEmail = email.ToLower();
-            var customer = await _customerDb.Customers
+            var customer = await _storeDb.Customers
                 .FirstOrDefaultAsync(c =>
                     c.Email.ToLower() == normalizedEmail);
 
@@ -233,7 +237,7 @@ namespace Storefront.Controllers
                     City = model.City.Trim()
                 };
 
-                _customerDb.Customers.Add(customer);
+                _storeDb.Customers.Add(customer);
             }
             else
             {
@@ -243,20 +247,15 @@ namespace Storefront.Controllers
                 customer.City = model.City.Trim();
             }
 
-            await _customerDb.SaveChangesAsync();
-
             var order = new Order
             {
-                Id = StoreData.Orders.Any()
-                    ? StoreData.Orders.Max(o => o.Id) + 1
-                    : 1001,
                 CustomerId = customer.Id,
+                Customer = customer,
                 OrderDate = DateTime.Now,
                 Status = "Pending",
                 Items = cart.Select(item =>
                 {
-                    var product = StoreData.Products
-                        .First(p => p.Id == item.ProductId);
+                    var product = products[item.ProductId];
 
                     return new OrderItem
                     {
@@ -271,26 +270,21 @@ namespace Storefront.Controllers
             // Reduce inventory.
             foreach (var item in cart)
             {
-                var product = StoreData.Products
-                    .First(p => p.Id == item.ProductId);
-
+                var product = products[item.ProductId];
                 product.StockQuantity -= item.Quantity;
             }
-
-            StoreData.Orders.Add(order);
 
             // Create an unpaid invoice; no payment gateway is connected.
             var invoice = new Invoice
             {
-                Id = StoreData.Invoices.Any()
-                    ? StoreData.Invoices.Max(i => i.Id) + 1
-                    : 1,
-                OrderId = order.Id,
+                Order = order,
                 InvoiceDate = DateTime.Now,
                 PaymentStatus = "Unpaid"
             };
 
-            StoreData.Invoices.Add(invoice);
+            _storeDb.Orders.Add(order);
+            _storeDb.Invoices.Add(invoice);
+            await _storeDb.SaveChangesAsync();
 
             // Empty the cart after successful order creation.
             HttpContext.Session.Remove(CartSessionKey);
@@ -303,15 +297,16 @@ namespace Storefront.Controllers
         [HttpGet]
         public async Task<IActionResult> Confirmation(int id)
         {
-            var order = StoreData.Orders
-                .FirstOrDefault(o => o.Id == id);
+            var order = await _storeDb.Orders
+                .Include(order => order.Items)
+                .FirstOrDefaultAsync(order => order.Id == id);
 
             if (order == null)
             {
                 return NotFound();
             }
 
-            ViewBag.Customer = await _customerDb.Customers
+            ViewBag.Customer = await _storeDb.Customers
                 .FirstOrDefaultAsync(c => c.Id == order.CustomerId);
 
             return View(order);

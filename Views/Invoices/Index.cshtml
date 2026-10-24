@@ -21,16 +21,13 @@
     <tbody>
         @foreach (var invoice in Model)
         {
-            var order = Storefront.Data.StoreData.Orders
-                .FirstOrDefault(o => o.Id == invoice.OrderId);
-
             <tr>
                 <td>@invoice.InvoiceNumber</td>
                 <td>@invoice.OrderId</td>
                 <td>@invoice.InvoiceDate.ToString("MMM dd, yyyy")</td>
                 <td>@invoice.PaymentStatus</td>
                 <td>
-                    @(order?.Total.ToString("C") ?? "N/A")
+                    @(invoice.Order?.Total.ToString("C") ?? "N/A")
                 </td>
                 <td>
                     <a asp-controller="Invoices"

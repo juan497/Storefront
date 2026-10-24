@@ -1,16 +1,25 @@
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Storefront.Data;
 
 namespace Storefront.Controllers
 {
     public class ReportsController : Controller
     {
-        public IActionResult Index()
+        private readonly StoreDbContext _storeDb;
+
+        public ReportsController(StoreDbContext storeDb)
         {
-            var paidOrders = StoreData.Orders
+            _storeDb = storeDb;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var paidOrders = await _storeDb.Orders
                 .Where(o => o.Status == "Paid")
-                .ToList();
+                .Include(order => order.Items)
+                .ToListAsync();
 
             decimal totalRevenue = paidOrders
                 .Sum(o => o.Total);
@@ -33,10 +42,10 @@ namespace Storefront.Controllers
                 .OrderByDescending(product => product.UnitsSold)
                 .ToList();
 
-            var lowStockProducts = StoreData.Products
+            var lowStockProducts = await _storeDb.Products
                 .Where(product => product.StockQuantity <= 10)
                 .OrderBy(product => product.StockQuantity)
-                .ToList();
+                .ToListAsync();
 
             ViewBag.TotalRevenue = totalRevenue;
             ViewBag.PaidOrderCount = paidOrderCount;

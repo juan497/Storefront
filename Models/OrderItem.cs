@@ -3,6 +3,10 @@ namespace Storefront.Models
 {
     public class OrderItem
     {
+        public int Id { get; set; }
+
+        public int OrderId { get; set; }
+
         public int ProductId { get; set; }
 
         public string ProductName { get; set; } = "";
@@ -11,12 +15,7 @@ namespace Storefront.Models
 
         public decimal UnitPrice { get; set; }
 
-        public decimal Subtotal
-        {
-            get
-            {
-                return UnitPrice * Quantity;
-            }
-        }
+        [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+        public decimal Subtotal => UnitPrice * Quantity;
     }
 }
