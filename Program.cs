@@ -7,18 +7,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddDbContext<ApplicationDbContext>(
-    options => options.UseSqlServer(
-        builder.Configuration.GetConnectionString(
-            "DefaultConnection")));
-
-var customerConnection = builder.Configuration.GetConnectionString(
-    "CustomerConnection")
+// ====== ADD DATABASE CONTEXT HERE ======
+var storeConnection = builder.Configuration.GetConnectionString(
+    "StoreConnection")
     ?? throw new InvalidOperationException(
-        "The CustomerConnection connection string is not configured.");
+        "The StoreConnection connection string is not configured.");
 
 builder.Services.AddDbContext<StoreDbContext>(
-    options => options.UseSqlite(customerConnection));
+    options => options.UseSqlite(storeConnection));
 
 // ====== ADD SESSION SERVICES HERE ======
 builder.Services.AddDistributedMemoryCache();
@@ -32,6 +28,7 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
+// Configure the HTTP request pipeline.
 await using (var scope = app.Services.CreateAsyncScope())
 {
     var storeDb = scope.ServiceProvider
@@ -82,95 +79,6 @@ await using (var scope = app.Services.CreateAsyncScope())
         );
         """);
 
-    if (!await storeDb.Customers.AnyAsync())
-    {
-        storeDb.Customers.AddRange(
-            new Customer
-            {
-                Id = 1,
-                FirstName = "John",
-                LastName = "Smith",
-                Email = "john@example.com",
-                City = "Los Angeles"
-            },
-            new Customer
-            {
-                Id = 2,
-                FirstName = "Maria",
-                LastName = "Garcia",
-                Email = "maria@example.com",
-                City = "Huntington Park"
-            },
-            new Customer
-            {
-                Id = 3,
-                FirstName = "David",
-                LastName = "Lee",
-                Email = "david@example.com",
-                City = "Long Beach"
-            });
-
-        await storeDb.SaveChangesAsync();
-    }
-
-    if (!await storeDb.Products.AnyAsync())
-    {
-        storeDb.Products.AddRange(
-            new Product
-            {
-                Id = 1,
-                Name = "Wireless Headphones",
-                Description = "Bluetooth headphones with clear sound.",
-                Price = 79.99m,
-                StockQuantity = 25,
-                Category = "Electronics"
-            },
-            new Product
-            {
-                Id = 2,
-                Name = "Mechanical Keyboard",
-                Description = "Mechanical keyboard for work and gaming.",
-                Price = 59.99m,
-                StockQuantity = 15,
-                Category = "Electronics"
-            },
-            new Product
-            {
-                Id = 3,
-                Name = "Running Shoes",
-                Description = "Lightweight shoes for everyday running.",
-                Price = 89.99m,
-                StockQuantity = 30,
-                Category = "Clothing"
-            },
-            new Product
-            {
-                Id = 4,
-                Name = "Water Bottle",
-                Description = "Reusable stainless steel water bottle.",
-                Price = 19.99m,
-                StockQuantity = 50,
-                Category = "Accessories"
-            });
-
-        await storeDb.SaveChangesAsync();
-    }
-
-    if (!await storeDb.Orders.AnyAsync())
-    {
-        var seededOrders = StoreData.Orders;
-        storeDb.Orders.AddRange(seededOrders);
-
-        storeDb.Invoices.AddRange(
-            StoreData.Invoices.Select(invoice =>
-            {
-                invoice.Order = seededOrders.Single(
-                    order => order.Id == invoice.OrderId);
-                return invoice;
-            }));
-
-        await storeDb.SaveChangesAsync();
-    }
 }
 
 // Configure the HTTP request pipeline.

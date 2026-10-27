@@ -9,13 +9,13 @@ public class StoreDbContext : DbContext
         : base(options)
     {
     }
-
+    //these are the tables in the database
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<Invoice> Invoices => Set<Invoice>();
-
+    //this is where we define the relationships between the tables
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Order>()

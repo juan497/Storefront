@@ -16,6 +16,7 @@ namespace Storefront.Controllers
 
         public async Task<IActionResult> Index()
         {
+            //ViewBag.CustomerNames, which is a dynamic property that shares data from the controller to the view
             ViewBag.CustomerNames = await _storeDb.Customers
                 .ToDictionaryAsync(
                     customer => customer.Id,
