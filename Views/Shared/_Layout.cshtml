@@ -11,93 +11,66 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Storefront</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+        <nav class="store-navbar">
+            <a class="store-logo" asp-controller="Home" asp-action="Index">
+                Storefront
+            </a>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                            asp-controller="Products"
-                            asp-action="Index">
-                                Products
-                            </a>
-                        </li>
+            <form class="store-search"
+                asp-controller="Products"
+                asp-action="Index"
+                method="get">
+                <input type="text"
+                    name="search"
+                    placeholder="Search Storefront"
+                    aria-label="Search products" />
+                <button type="submit">Search</button>
+            </form>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                            asp-controller="Customers"
-                            asp-action="Index">
-                                Customers
-                            </a>
-                        </li>
+            <a class="store-nav-link"
+            asp-controller="Customers"
+            asp-action="Index">
+                Customers
+            </a>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                            asp-controller="Orders"
-                            asp-action="Index">
-                                Orders
-                            </a>
-                        </li>
+            <a class="store-nav-link"
+            asp-controller="Orders"
+            asp-action="Index">
+                Orders
+            </a>
 
-
-<li class="nav-item">
-    <a class="nav-link text-dark"
-       asp-controller="Invoices"
-       asp-action="Index">
-        Invoices
-    </a>
-</li>
-
-
-<li class="nav-item">
-    <a class="nav-link text-dark"
-       asp-controller="Reports"
-       asp-action="Index">
-        Reports
-    </a>
-</li>
-
-<li class="nav-item">
-    <a class="nav-link"
-       asp-controller="Cart"
-       asp-action="Index">
-        Shopping Cart
-    </a>
-</li>
-
-
-
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+            <a class="store-nav-link"
+            asp-controller="Cart"
+            asp-action="Index">
+                Cart
+            </a>
         </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Storefront - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        <div class="store-subnav">
+            <a asp-controller="Home" asp-action="Index">Home</a>
+            <a asp-controller="Products" asp-action="Index">All Products</a>
+            <a asp-controller="Invoices" asp-action="Index">Invoices</a>
+            <a asp-controller="Reports" asp-action="Index">Reports</a>
         </div>
+    </header>
+
+
+    <header>
+        <!-- Your Storefront navigation bar goes here -->
+    </header>
+
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <footer>
+        <!-- Your existing footer, if you have one -->
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

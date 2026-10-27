@@ -104,7 +104,7 @@
 /Users/juan/Desktop/Storefront/obj/Debug/net10.0/scopedcss/Views/Shared/_Layout.cshtml.rz.scp.css
 /Users/juan/Desktop/Storefront/obj/Debug/net10.0/scopedcss/bundle/Storefront.styles.css
 /Users/juan/Desktop/Storefront/obj/Debug/net10.0/scopedcss/projectbundle/Storefront.bundle.scp.css
-/Users/juan/Desktop/Storefront/obj/Debug/net10.0/compressed/v2vfeqgnd8-{0}-b9sayid5wm-b9sayid5wm.gz
+/Users/juan/Desktop/Storefront/obj/Debug/net10.0/compressed/v2vfeqgnd8-{0}-zg0azmzlsm-zg0azmzlsm.gz
 /Users/juan/Desktop/Storefront/obj/Debug/net10.0/compressed/eu6y8s9npb-{0}-61n19gt1b8-61n19gt1b8.gz
 /Users/juan/Desktop/Storefront/obj/Debug/net10.0/compressed/0t60aue5u2-{0}-xtxxf3hu2r-xtxxf3hu2r.gz
 /Users/juan/Desktop/Storefront/obj/Debug/net10.0/compressed/mf15m2qvjy-{0}-bqjiyaj88i-bqjiyaj88i.gz

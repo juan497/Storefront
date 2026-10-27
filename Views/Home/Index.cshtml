@@ -1,8 +1,64 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model IEnumerable<Product>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="store-container">
+
+    <section class="store-hero">
+        <h1>Welcome to Storefrontddd</h1>
+        <p>
+            Discover great products at great prices.
+            Find something you'll love.
+        </p>
+
+        <a class="store-button"
+           asp-controller="Products"
+           asp-action="Index">
+            Shop Now
+        </a>
+    </section>
+
+    <h2 class="store-section-title">Explore Storefront</h2>
+
+    <div class="row g-4">
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="product-card">
+                <h5>Browse Products</h5>
+                <p>Explore our available products and discover something new.</p>
+                <a class="store-button"
+                   asp-controller="Products"
+                   asp-action="Index">
+                    Shop Products
+                </a>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="product-card">
+                <h5>Your Orders</h5>
+                <p>Review orders and track their current status.</p>
+                <a class="store-button"
+                   asp-controller="Orders"
+                   asp-action="Index">
+                    View Orders
+                </a>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="product-card">
+                <h5>Shopping Cart</h5>
+                <p>View your selected products before checking out.</p>
+                <a class="store-button"
+                   asp-controller="Cart"
+                   asp-action="Index">
+                    View Cart
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <section class="mt-5">
+        <h2 class="store-section-title">Products</h2>
+        @await Html.PartialAsync("~/Views/Products/_ProductList.cshtml", Model)
+    </section>
+
 </div>
