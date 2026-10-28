@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Storefront")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3ad19821b71c0685546cdfaf9479e954e0bee508")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e9546f77fb6294490f9619350a2fbc922bf60b7a")]
 [assembly: System.Reflection.AssemblyProductAttribute("Storefront")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Storefront")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
