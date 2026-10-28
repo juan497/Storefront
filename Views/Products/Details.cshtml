@@ -5,18 +5,29 @@
     ViewData["Title"] = "Product Details";
 }
 
-<h1>@Model.Name</h1>
+<div class="row align-items-center">
+    <div class="col-md-5">
+        <img src="@(string.IsNullOrWhiteSpace(Model.ImageUrl) ? "/images/no-image.svg" : Model.ImageUrl)"
+             alt="@Model.Name"
+             class="img-fluid rounded shadow-sm"
+             style="max-height: 420px; object-fit: cover; width: 100%; background-color: #f3f4f6;" />
+    </div>
 
-<p><strong>Category:</strong> @Model.Category</p>
+    <div class="col-md-7">
+        <h1>@Model.Name</h1>
 
-<p>@Model.Description</p>
+        <p><strong>Category:</strong> @Model.Category</p>
 
-<h3>@Model.Price.ToString("C")</h3>
+        <p>@Model.Description</p>
 
-<p>Available stock: @Model.StockQuantity</p>
+        <h3>@Model.Price.ToString("C")</h3>
 
-<a asp-controller="Products"
-   asp-action="Index"
-   class="btn btn-secondary">
-    Back to Products
-</a>
+        <p>Available stock: @Model.StockQuantity</p>
+
+        <a asp-controller="Products"
+           asp-action="Index"
+           class="btn btn-secondary">
+            Back to Products
+        </a>
+    </div>
+</div>

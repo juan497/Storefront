@@ -46,5 +46,7 @@ namespace Storefront.Models
         public int StockQuantity { get; set; }
 
         public string Category { get; set; } = "";
+
+        public string? ImageUrl { get; set; }
     }
 }
