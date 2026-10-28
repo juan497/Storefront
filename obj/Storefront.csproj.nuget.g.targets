@@ -4,5 +4,6 @@
     <Import Project="$(NuGetPackageRoot)microsoft.extensions.apidescription.server/10.0.0/build/Microsoft.Extensions.ApiDescription.Server.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.extensions.apidescription.server/10.0.0/build/Microsoft.Extensions.ApiDescription.Server.targets')" />
     <Import Project="$(NuGetPackageRoot)sqlitepclraw.lib.e_sqlite3/2.1.13/buildTransitive/net9.0/SQLitePCLRaw.lib.e_sqlite3.targets" Condition="Exists('$(NuGetPackageRoot)sqlitepclraw.lib.e_sqlite3/2.1.13/buildTransitive/net9.0/SQLitePCLRaw.lib.e_sqlite3.targets')" />
     <Import Project="$(NuGetPackageRoot)microsoft.identity.client.nativeinterop/0.20.6/buildtransitive/netstandard2.0/Microsoft.Identity.Client.NativeInterop.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.identity.client.nativeinterop/0.20.6/buildtransitive/netstandard2.0/Microsoft.Identity.Client.NativeInterop.targets')" />
+    <Import Project="$(NuGetPackageRoot)microsoft.aspnetcore.identity.ui/10.0.13/buildTransitive/Microsoft.AspNetCore.Identity.UI.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.aspnetcore.identity.ui/10.0.13/buildTransitive/Microsoft.AspNetCore.Identity.UI.targets')" />
   </ImportGroup>
 </Project>

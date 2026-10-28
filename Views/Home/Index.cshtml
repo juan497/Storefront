@@ -9,11 +9,18 @@
             Find something you'll love.
         </p>
 
-        <a class="store-button"
-           asp-controller="Products"
-           asp-action="Index">
-            Shop Now
-        </a>
+        <div class="d-flex flex-wrap gap-3">
+            <a class="store-button"
+               asp-controller="Products"
+               asp-action="Index">
+                Shop Now
+            </a>
+            <a class="store-button"
+               asp-controller="Account"
+               asp-action="Login">
+                Login
+            </a>
+        </div>
     </section>
 
     <h2 class="store-section-title">Explore Storefront</h2>

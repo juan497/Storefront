@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Storefront.Data;
 using Storefront.Models;
@@ -7,32 +8,45 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// ====== ADD DATABASE CONTEXT HERE ======
 var storeConnection = builder.Configuration.GetConnectionString(
     "StoreConnection")
     ?? throw new InvalidOperationException(
         "The StoreConnection connection string is not configured.");
 
+var identityConnection = builder.Configuration.GetConnectionString(
+    "IdentityConnection")
+    ?? throw new InvalidOperationException(
+        "The IdentityConnection connection string is not configured.");
+
 builder.Services.AddDbContext<StoreDbContext>(
     options => options.UseSqlite(storeConnection));
+builder.Services.AddDbContext<ApplicationDbContext>(
+    options => options.UseSqlite(identityConnection));
 
-// ====== ADD SESSION SERVICES HERE ======
+builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+        options.Password.RequireDigit = false;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequiredLength = 6;
+    })
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
 builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(options => 
+builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
-// =======================================
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 await using (var scope = app.Services.CreateAsyncScope())
 {
-    var storeDb = scope.ServiceProvider
-        .GetRequiredService<StoreDbContext>();
+    var storeDb = scope.ServiceProvider.GetRequiredService<StoreDbContext>();
     await storeDb.Database.EnsureCreatedAsync();
     await storeDb.Database.ExecuteSqlRawAsync(
         """
@@ -79,24 +93,38 @@ await using (var scope = app.Services.CreateAsyncScope())
         );
         """);
 
+    var identityDb = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await identityDb.Database.EnsureCreatedAsync();
+
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+    const string adminEmail = "admin@storefront.com";
+    if (await userManager.FindByEmailAsync(adminEmail) is null)
+    {
+        var adminUser = new IdentityUser(adminEmail)
+        {
+            Email = adminEmail,
+            EmailConfirmed = true
+        };
+
+        var result = await userManager.CreateAsync(adminUser, "Password123!");
+        if (!result.Succeeded)
+        {
+            throw new InvalidOperationException(
+                "Failed to create default Identity admin user: " + string.Join(", ", result.Errors.Select(error => error.Description)));
+        }
+    }
 }
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
-// ====== ADD SESSION MIDDLEWARE HERE ======
-// It must come after UseRouting and before your endpoint mappings
-app.UseSession(); 
-// =========================================
-
+app.UseSession();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

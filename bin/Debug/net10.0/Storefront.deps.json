@@ -8,6 +8,8 @@
     ".NETCoreApp,Version=v10.0": {
       "Storefront/1.0.0": {
         "dependencies": {
+          "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "10.0.13",
+          "Microsoft.AspNetCore.Identity.UI": "10.0.13",
           "Microsoft.EntityFrameworkCore.SqlServer": "10.0.13",
           "Microsoft.EntityFrameworkCore.Sqlite": "10.0.13",
           "Swashbuckle.AspNetCore": "10.3.0"
@@ -39,6 +41,28 @@
           "lib/net8.0/Azure.Identity.dll": {
             "assemblyVersion": "1.17.1.0",
             "fileVersion": "1.1700.125.56903"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.Identity.EntityFrameworkCore/10.0.13": {
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Relational": "10.0.13"
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll": {
+            "assemblyVersion": "10.0.13.0",
+            "fileVersion": "10.0.1326.50504"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.Identity.UI/10.0.13": {
+        "dependencies": {
+          "Microsoft.Extensions.FileProviders.Embedded": "10.0.13"
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.AspNetCore.Identity.UI.dll": {
+            "assemblyVersion": "10.0.13.0",
+            "fileVersion": "10.0.1326.50504"
           }
         }
       },
@@ -223,6 +247,14 @@
         "runtime": {
           "lib/net10.0/Microsoft.Extensions.DependencyModel.dll": {
             "assemblyVersion": "10.0.0.13",
+            "fileVersion": "10.0.1326.50504"
+          }
+        }
+      },
+      "Microsoft.Extensions.FileProviders.Embedded/10.0.13": {
+        "runtime": {
+          "lib/net10.0/Microsoft.Extensions.FileProviders.Embedded.dll": {
+            "assemblyVersion": "10.0.0.0",
             "fileVersion": "10.0.1326.50504"
           }
         }
@@ -636,6 +668,20 @@
       "path": "azure.identity/1.17.1",
       "hashPath": "azure.identity.1.17.1.nupkg.sha512"
     },
+    "Microsoft.AspNetCore.Identity.EntityFrameworkCore/10.0.13": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-c6984ahCnqc3zqYgl5KqrBoY+LMKqJW6nZcFdBYNyp3PAA67prA/IgjQ/ySV0t3lEL2LEz3bcx91fbUYr8bRPA==",
+      "path": "microsoft.aspnetcore.identity.entityframeworkcore/10.0.13",
+      "hashPath": "microsoft.aspnetcore.identity.entityframeworkcore.10.0.13.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.Identity.UI/10.0.13": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-GmYLDolvnZ5jwnO7jjCpBd5WvpQDmFqrTWlpK4DkyiLVUGrfuDMMm1VY+HBp9Wut5BANN5xDm1xXo9ZW9fYJUg==",
+      "path": "microsoft.aspnetcore.identity.ui/10.0.13",
+      "hashPath": "microsoft.aspnetcore.identity.ui.10.0.13.nupkg.sha512"
+    },
     "Microsoft.Bcl.AsyncInterfaces/8.0.0": {
       "type": "package",
       "serviceable": true,
@@ -712,6 +758,13 @@
       "sha512": "sha512-6TyllZsToy3S/Ziu67GddljRTttuVJ8bbrbVUrsdHqH5678Oax5MpaEubxLoPoWLvgUBYo4KfcAig0mkBtktXQ==",
       "path": "microsoft.extensions.dependencymodel/10.0.13",
       "hashPath": "microsoft.extensions.dependencymodel.10.0.13.nupkg.sha512"
+    },
+    "Microsoft.Extensions.FileProviders.Embedded/10.0.13": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-H4baeis/dx/NZ87070hjvJc5mry36x68yQjiMKS3uFxa2tlAwWAciZZh3baTjGCDc7ChURQdLOzPLVsXfkAEFw==",
+      "path": "microsoft.extensions.fileproviders.embedded/10.0.13",
+      "hashPath": "microsoft.extensions.fileproviders.embedded.10.0.13.nupkg.sha512"
     },
     "Microsoft.Identity.Client/4.84.2": {
       "type": "package",
