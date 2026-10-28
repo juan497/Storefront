@@ -1,11 +1,13 @@
 
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Storefront.Data;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+    using Storefront.Data;
 
-namespace Storefront.Controllers
-{
-    public class CustomersController : Controller
+    namespace Storefront.Controllers
+    {
+        [Authorize(Roles = "Admin")]
+        public class CustomersController : Controller
     {
         private readonly StoreDbContext _storeDb;
 

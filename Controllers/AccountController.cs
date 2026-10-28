@@ -102,6 +102,17 @@ public class AccountController : Controller
             return View(model);
         }
 
+        var roleResult = await _userManager.AddToRoleAsync(user, "Customer");
+        if (!roleResult.Succeeded)
+        {
+            foreach (var error in roleResult.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View(model);
+        }
+
         var normalizedEmail = model.Email.Trim();
         var existingCustomer = await _storeDb.Customers
             .FirstOrDefaultAsync(c => c.Email.ToLower() == normalizedEmail.ToLower());

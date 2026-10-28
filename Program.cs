@@ -37,6 +37,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
         options.Password.RequireNonAlphanumeric = false;
         options.Password.RequiredLength = 6;
     })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 // Configure session state with a 30-minute idle timeout and essential cookies
@@ -104,11 +105,22 @@ await using (var scope = app.Services.CreateAsyncScope())
     var identityDb = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await identityDb.Database.EnsureCreatedAsync();
 
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-    const string adminEmail = "admin@storefront.com";
-    if (await userManager.FindByEmailAsync(adminEmail) is null)
+
+    foreach (var roleName in new[] { "Admin", "Customer" })
     {
-        var adminUser = new IdentityUser(adminEmail)
+        if (!await roleManager.RoleExistsAsync(roleName))
+        {
+            await roleManager.CreateAsync(new IdentityRole(roleName));
+        }
+    }
+
+    const string adminEmail = "admin@storefront.com";
+    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+    if (adminUser is null)
+    {
+        adminUser = new IdentityUser(adminEmail)
         {
             Email = adminEmail,
             EmailConfirmed = true
@@ -119,6 +131,16 @@ await using (var scope = app.Services.CreateAsyncScope())
         {
             throw new InvalidOperationException(
                 "Failed to create default Identity admin user: " + string.Join(", ", result.Errors.Select(error => error.Description)));
+        }
+    }
+
+    if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
+    {
+        var roleResult = await userManager.AddToRoleAsync(adminUser, "Admin");
+        if (!roleResult.Succeeded)
+        {
+            throw new InvalidOperationException(
+                "Failed to assign admin role: " + string.Join(", ", roleResult.Errors.Select(error => error.Description)));
         }
     }
 }

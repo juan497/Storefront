@@ -27,21 +27,27 @@
                 <button type="submit">Search</button>
             </form>
 
-            <a class="store-nav-link"
-            asp-controller="Customers"
-            asp-action="Index">
-                Customers
-            </a>
+            @if (User.IsInRole("Admin"))
+            {
+                <a class="store-nav-link"
+                   asp-controller="Customers"
+                   asp-action="Index">
+                    Customers
+                </a>
+            }
+
+            @if (User.Identity?.IsAuthenticated == true && !User.IsInRole("Admin"))
+            {
+                <a class="store-nav-link"
+                   asp-controller="Orders"
+                   asp-action="Index">
+                    My Orders
+                </a>
+            }
 
             <a class="store-nav-link"
-            asp-controller="Orders"
-            asp-action="Index">
-                Orders
-            </a>
-
-            <a class="store-nav-link"
-            asp-controller="Cart"
-            asp-action="Index">
+               asp-controller="Cart"
+               asp-action="Index">
                 Cart
             </a>
 
@@ -64,8 +70,16 @@
 
         <div class="store-subnav">
             <a asp-controller="Home" asp-action="Index">Home</a>
-            <a asp-controller="Invoices" asp-action="Index">Invoices</a>
-            <a asp-controller="Reports" asp-action="Index">Reports</a>
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-controller="Products" asp-action="Create">Add Product</a>
+                <a asp-controller="Invoices" asp-action="Index">Invoices</a>
+                <a asp-controller="Reports" asp-action="Index">Reports</a>
+            }
+            else if (User.Identity?.IsAuthenticated == true)
+            {
+                <a asp-controller="Orders" asp-action="Index">My Orders</a>
+            }
         </div>
     </header>
 

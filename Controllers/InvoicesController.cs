@@ -1,11 +1,13 @@
 
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Storefront.Data;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+    using Storefront.Data;
 
-namespace Storefront.Controllers
-{
-    public class InvoicesController : Controller
+    namespace Storefront.Controllers
+    {
+        [Authorize(Roles = "Admin")]
+        public class InvoicesController : Controller
     {
         private readonly StoreDbContext _storeDb;
 

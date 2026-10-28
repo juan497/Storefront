@@ -1,12 +1,13 @@
 
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Storefront.Data;
-using Storefront.Models;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+    using Storefront.Data;
+    using Storefront.Models;
 
-namespace Storefront.Controllers
-{
-    public class ProductsController : Controller
+    namespace Storefront.Controllers
+    {
+        public class ProductsController : Controller
     {
         private readonly StoreDbContext _storeDb;
         private readonly IWebHostEnvironment _webHostEnvironment;
@@ -24,6 +25,7 @@ namespace Storefront.Controllers
             return View(products);
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View(new ProductFormViewModel());
@@ -31,6 +33,7 @@ namespace Storefront.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(ProductFormViewModel model)
         {
             if (!ModelState.IsValid)
