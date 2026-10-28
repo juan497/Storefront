@@ -169,7 +169,7 @@
 /Users/juan/Desktop/Storefront/obj/Debug/net10.0/compressed/nezrqnk58p-{0}-muycvpuwrr-muycvpuwrr.gz
 /Users/juan/Desktop/Storefront/obj/Debug/net10.0/compressed/v0zgfp0y55-{0}-87fc7y1x7t-87fc7y1x7t.gz
 /Users/juan/Desktop/Storefront/obj/Debug/net10.0/compressed/yfc7ypekbg-{0}-mlv21k5csn-mlv21k5csn.gz
-/Users/juan/Desktop/Storefront/obj/Debug/net10.0/compressed/v2vfeqgnd8-{0}-8ycdx274r4-8ycdx274r4.gz
+/Users/juan/Desktop/Storefront/obj/Debug/net10.0/compressed/v2vfeqgnd8-{0}-3ezpklxvzr-3ezpklxvzr.gz
 /Users/juan/Desktop/Storefront/obj/Debug/net10.0/compressed/eu6y8s9npb-{0}-61n19gt1b8-61n19gt1b8.gz
 /Users/juan/Desktop/Storefront/obj/Debug/net10.0/compressed/kmc19a1h1h-{0}-av31hemt83-av31hemt83.gz
 /Users/juan/Desktop/Storefront/obj/Debug/net10.0/compressed/0t60aue5u2-{0}-xtxxf3hu2r-xtxxf3hu2r.gz

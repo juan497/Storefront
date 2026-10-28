@@ -5,10 +5,16 @@
     ViewData["Title"] = "Products";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="mb-0">Storefront Products</h1>
-    <a asp-action="Create" class="btn btn-primary">Add Product</a>
-</div>
+<div class="store-container">
+    <section class="store-hero d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <p class="text-uppercase fw-bold text-warning mb-2">Catalog</p>
+            <h1>All products</h1>
+        </div>
 
-@await Html.PartialAsync("~/Views/Products/_ProductList.cshtml", Model)
+        <a asp-action="Create" class="store-button">Add Product</a>
+    </section>
+
+    @await Html.PartialAsync("~/Views/Products/_ProductList.cshtml", Model)
+</div>
 ```

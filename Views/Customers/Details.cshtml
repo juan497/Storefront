@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Customer Details";
+    var customerOrders = ViewBag.CustomerOrders as IEnumerable<Storefront.Models.Order> ?? Enumerable.Empty<Storefront.Models.Order>();
 }
 
 <h1>Customer Details</h1>
@@ -12,8 +13,45 @@
 <p><strong>Email:</strong> @Model.Email</p>
 <p><strong>City:</strong> @Model.City</p>
 
+<hr class="my-4" />
+
+<h2>Past Orders</h2>
+
+@if (!customerOrders.Any())
+{
+    <p class="text-muted">This customer has no past orders.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in customerOrders)
+                {
+                    <tr>
+                        <td>@order.Id</td>
+                        <td>@order.OrderDate.ToString("MMM d, yyyy")</td>
+                        <td>@order.Status</td>
+                        <td>@order.Items.Count</td>
+                        <td>@order.Total.ToString("C")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
 <a asp-controller="Customers"
    asp-action="Index"
-   class="btn btn-secondary">
+   class="btn btn-secondary mt-3">
     Back to Customers
 </a>

@@ -34,6 +34,14 @@ namespace Storefront.Controllers
                 return NotFound();
             }
 
+            var customerOrders = await _storeDb.Orders
+                .Where(order => order.CustomerId == customer.Id)
+                .Include(order => order.Items)
+                .OrderByDescending(order => order.OrderDate)
+                .ToListAsync();
+
+            ViewBag.CustomerOrders = customerOrders;
+
             return View(customer);
         }
     }
