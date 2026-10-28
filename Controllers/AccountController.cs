@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Storefront.Data;
 using Storefront.Models;
 
 namespace Storefront.Controllers;
@@ -8,11 +10,16 @@ public class AccountController : Controller
 {
     private readonly SignInManager<IdentityUser> _signInManager;
     private readonly UserManager<IdentityUser> _userManager;
+    private readonly StoreDbContext _storeDb;
 
-    public AccountController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager)
+    public AccountController(
+        SignInManager<IdentityUser> signInManager,
+        UserManager<IdentityUser> userManager,
+        StoreDbContext storeDb)
     {
         _signInManager = signInManager;
         _userManager = userManager;
+        _storeDb = storeDb;
     }
 
     [HttpGet]
@@ -95,6 +102,26 @@ public class AccountController : Controller
             return View(model);
         }
 
+        var normalizedEmail = model.Email.Trim();
+        var existingCustomer = await _storeDb.Customers
+            .FirstOrDefaultAsync(c => c.Email.ToLower() == normalizedEmail.ToLower());
+
+        if (existingCustomer is null)
+        {
+            _storeDb.Customers.Add(new Customer
+            {
+                FirstName = string.Empty,
+                LastName = string.Empty,
+                Email = normalizedEmail,
+                City = string.Empty
+            });
+        }
+        else
+        {
+            existingCustomer.Email = normalizedEmail;
+        }
+
+        await _storeDb.SaveChangesAsync();
         await _signInManager.SignInAsync(user, isPersistent: false);
 
         return RedirectToAction(nameof(HomeController.Index), "Home");

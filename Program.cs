@@ -3,11 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using Storefront.Data;
 using Storefront.Models;
 
+// <summary>
+// The main entry point for the application.
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Configure database connections for StoreDbContext and ApplicationDbContext
 var storeConnection = builder.Configuration.GetConnectionString(
     "StoreConnection")
     ?? throw new InvalidOperationException(
@@ -18,11 +21,13 @@ var identityConnection = builder.Configuration.GetConnectionString(
     ?? throw new InvalidOperationException(
         "The IdentityConnection connection string is not configured.");
 
+// Configure Entity Framework Core to use SQLite for both StoreDbContext and ApplicationDbContext
 builder.Services.AddDbContext<StoreDbContext>(
     options => options.UseSqlite(storeConnection));
 builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseSqlite(identityConnection));
 
+// Configure Identity services with custom password requirements
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
@@ -34,6 +39,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
     })
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+// Configure session state with a 30-minute idle timeout and essential cookies
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -42,8 +48,10 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+// Build the application
 var app = builder.Build();
 
+// Ensure the databases are created and seed the Identity database with a default admin user
 await using (var scope = app.Services.CreateAsyncScope())
 {
     var storeDb = scope.ServiceProvider.GetRequiredService<StoreDbContext>();
