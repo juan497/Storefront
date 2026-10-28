@@ -27,6 +27,10 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9Mb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/juan/Desktop/Storefront/Views/Account/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9SZWdpc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/juan/Desktop/Storefront/Views/Cart/Checkout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2FydC9DaGVja291dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
