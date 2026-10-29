@@ -10,22 +10,47 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Configure database connections for StoreDbContext and ApplicationDbContext
-var storeConnection = builder.Configuration.GetConnectionString(
-    "StoreConnection")
-    ?? throw new InvalidOperationException(
-        "The StoreConnection connection string is not configured.");
+// Configure database provider and connection strings for StoreDbContext and ApplicationDbContext.
+var databaseProvider = builder.Configuration["DatabaseProvider"] ?? "PostgreSQL";
 
-var identityConnection = builder.Configuration.GetConnectionString(
-    "IdentityConnection")
-    ?? throw new InvalidOperationException(
-        "The IdentityConnection connection string is not configured.");
+builder.Services.AddDbContext<StoreDbContext>((_, options) =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("StoreConnection")
+        ?? throw new InvalidOperationException(
+            "The StoreConnection connection string is not configured.");
 
-// Configure Entity Framework Core to use SQLite for both StoreDbContext and ApplicationDbContext
-builder.Services.AddDbContext<StoreDbContext>(
-    options => options.UseSqlite(storeConnection));
-builder.Services.AddDbContext<ApplicationDbContext>(
-    options => options.UseSqlite(identityConnection));
+    ConfigureDatabaseProvider(options, databaseProvider, connectionString);
+});
+
+builder.Services.AddDbContext<ApplicationDbContext>((_, options) =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("IdentityConnection")
+        ?? throw new InvalidOperationException(
+            "The IdentityConnection connection string is not configured.");
+
+    ConfigureDatabaseProvider(options, builder.Configuration["IdentityDatabaseProvider"] ?? databaseProvider, connectionString);
+});
+
+static void ConfigureDatabaseProvider(DbContextOptionsBuilder options, string databaseProvider, string connectionString)
+{
+    switch (databaseProvider.Trim())
+    {
+        case "PostgreSQL":
+        case "Postgres":
+        case "Npgsql":
+            options.UseNpgsql(connectionString);
+            break;
+        case "SqlServer":
+        case "SQLServer":
+        case "AzureSQL":
+        case "AzureSql":
+            options.UseSqlServer(connectionString);
+            break;
+        default:
+            throw new InvalidOperationException(
+                $"Unsupported database provider '{databaseProvider}'. Use PostgreSQL or SqlServer.");
+    }
+}
 
 // Configure Identity services with custom password requirements
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
@@ -52,55 +77,11 @@ builder.Services.AddSession(options =>
 // Build the application
 var app = builder.Build();
 
-// Ensure the databases are created and seed the Identity database with a default admin user
+// Ensure the databases are created and seed the Identity database with a default admin user.
 await using (var scope = app.Services.CreateAsyncScope())
 {
     var storeDb = scope.ServiceProvider.GetRequiredService<StoreDbContext>();
     await storeDb.Database.EnsureCreatedAsync();
-    await storeDb.Database.ExecuteSqlRawAsync(
-        """
-        CREATE TABLE IF NOT EXISTS "Products" (
-            "Id" INTEGER NOT NULL CONSTRAINT "PK_Products" PRIMARY KEY AUTOINCREMENT,
-            "Name" TEXT NOT NULL,
-            "Description" TEXT NOT NULL,
-            "Price" TEXT NOT NULL,
-            "StockQuantity" INTEGER NOT NULL,
-            "Category" TEXT NOT NULL
-        );
-        """);
-    await storeDb.Database.ExecuteSqlRawAsync(
-        """
-        CREATE TABLE IF NOT EXISTS "Orders" (
-            "Id" INTEGER NOT NULL CONSTRAINT "PK_Orders" PRIMARY KEY AUTOINCREMENT,
-            "CustomerId" INTEGER NOT NULL,
-            "OrderDate" TEXT NOT NULL,
-            "Status" TEXT NOT NULL,
-            CONSTRAINT "FK_Orders_Customers_CustomerId"
-                FOREIGN KEY ("CustomerId") REFERENCES "Customers" ("Id")
-                ON DELETE RESTRICT
-        );
-        CREATE TABLE IF NOT EXISTS "OrderItems" (
-            "Id" INTEGER NOT NULL CONSTRAINT "PK_OrderItems" PRIMARY KEY AUTOINCREMENT,
-            "OrderId" INTEGER NOT NULL,
-            "ProductId" INTEGER NOT NULL,
-            "ProductName" TEXT NOT NULL,
-            "Quantity" INTEGER NOT NULL,
-            "UnitPrice" TEXT NOT NULL,
-            CONSTRAINT "FK_OrderItems_Orders_OrderId"
-                FOREIGN KEY ("OrderId") REFERENCES "Orders" ("Id")
-                ON DELETE CASCADE
-        );
-        CREATE TABLE IF NOT EXISTS "Invoices" (
-            "Id" INTEGER NOT NULL CONSTRAINT "PK_Invoices" PRIMARY KEY AUTOINCREMENT,
-            "OrderId" INTEGER NOT NULL,
-            "InvoiceDate" TEXT NOT NULL,
-            "PaymentStatus" TEXT NOT NULL,
-            CONSTRAINT "AK_Invoices_OrderId" UNIQUE ("OrderId"),
-            CONSTRAINT "FK_Invoices_Orders_OrderId"
-                FOREIGN KEY ("OrderId") REFERENCES "Orders" ("Id")
-                ON DELETE CASCADE
-        );
-        """);
 
     var identityDb = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await identityDb.Database.EnsureCreatedAsync();
