@@ -97,31 +97,36 @@ await using (var scope = app.Services.CreateAsyncScope())
         }
     }
 
-    const string adminEmail = "admin@storefront.com";
-    var adminUser = await userManager.FindByEmailAsync(adminEmail);
-    if (adminUser is null)
-    {
-        adminUser = new IdentityUser(adminEmail)
-        {
-            Email = adminEmail,
-            EmailConfirmed = true
-        };
+    var adminEmail = builder.Configuration["Admin:Email"];
+    var adminPassword = builder.Configuration["Admin:Password"];
 
-        var result = await userManager.CreateAsync(adminUser, "Password123!");
-        if (!result.Succeeded)
+    if (!string.IsNullOrWhiteSpace(adminEmail) && !string.IsNullOrWhiteSpace(adminPassword))
+    {
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+        if (adminUser is null)
         {
-            throw new InvalidOperationException(
-                "Failed to create default Identity admin user: " + string.Join(", ", result.Errors.Select(error => error.Description)));
+            adminUser = new IdentityUser(adminEmail)
+            {
+                Email = adminEmail,
+                EmailConfirmed = true
+            };
+
+            var result = await userManager.CreateAsync(adminUser, adminPassword);
+            if (!result.Succeeded)
+            {
+                throw new InvalidOperationException(
+                    "Failed to create configured admin user: " + string.Join(", ", result.Errors.Select(error => error.Description)));
+            }
         }
-    }
 
-    if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
-    {
-        var roleResult = await userManager.AddToRoleAsync(adminUser, "Admin");
-        if (!roleResult.Succeeded)
+        if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
         {
-            throw new InvalidOperationException(
-                "Failed to assign admin role: " + string.Join(", ", roleResult.Errors.Select(error => error.Description)));
+            var roleResult = await userManager.AddToRoleAsync(adminUser, "Admin");
+            if (!roleResult.Succeeded)
+            {
+                throw new InvalidOperationException(
+                    "Failed to assign admin role: " + string.Join(", ", roleResult.Errors.Select(error => error.Description)));
+            }
         }
     }
 }
