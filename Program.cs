@@ -7,17 +7,22 @@ using Storefront.Models;
 // The main entry point for the application.
 var builder = WebApplication.CreateBuilder(args);
 
+var configuredPort = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(configuredPort) && int.TryParse(configuredPort, out var portNumber))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{portNumber}");
+}
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 // Configure database provider and connection strings for StoreDbContext and ApplicationDbContext.
-var databaseProvider = builder.Configuration["DatabaseProvider"] ?? "PostgreSQL";
+var databaseProvider = builder.Configuration["DatabaseProvider"] ?? "Sqlite";
 
 builder.Services.AddDbContext<StoreDbContext>((_, options) =>
 {
     var connectionString = builder.Configuration.GetConnectionString("StoreConnection")
-        ?? throw new InvalidOperationException(
-            "The StoreConnection connection string is not configured.");
+        ?? GetDefaultConnectionString("StoreConnection", databaseProvider);
 
     ConfigureDatabaseProvider(options, databaseProvider, connectionString);
 });
@@ -25,16 +30,48 @@ builder.Services.AddDbContext<StoreDbContext>((_, options) =>
 builder.Services.AddDbContext<ApplicationDbContext>((_, options) =>
 {
     var connectionString = builder.Configuration.GetConnectionString("IdentityConnection")
-        ?? throw new InvalidOperationException(
-            "The IdentityConnection connection string is not configured.");
+        ?? GetDefaultConnectionString("IdentityConnection", builder.Configuration["IdentityDatabaseProvider"] ?? databaseProvider);
 
     ConfigureDatabaseProvider(options, builder.Configuration["IdentityDatabaseProvider"] ?? databaseProvider, connectionString);
 });
+
+static string GetDefaultConnectionString(string name, string databaseProvider)
+{
+    if (databaseProvider.Equals("Sqlite", StringComparison.OrdinalIgnoreCase))
+    {
+        var sqlitePath = Environment.GetEnvironmentVariable("DB_PATH")
+            ?? Path.Combine("/tmp", $"{name.ToLowerInvariant()}.db");
+
+        return $"Data Source={sqlitePath}";
+    }
+
+    if (databaseProvider.Equals("PostgreSQL", StringComparison.OrdinalIgnoreCase)
+        || databaseProvider.Equals("Postgres", StringComparison.OrdinalIgnoreCase)
+        || databaseProvider.Equals("Npgsql", StringComparison.OrdinalIgnoreCase))
+    {
+        return "Host=localhost;Database=storefront;Username=postgres;Password=postgres";
+    }
+
+    if (databaseProvider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase)
+        || databaseProvider.Equals("SQLServer", StringComparison.OrdinalIgnoreCase)
+        || databaseProvider.Equals("AzureSQL", StringComparison.OrdinalIgnoreCase)
+        || databaseProvider.Equals("AzureSql", StringComparison.OrdinalIgnoreCase))
+    {
+        return "Server=(localdb)\\MSSQLLocalDB;Database=Storefront;Trusted_Connection=True;";
+    }
+
+    throw new InvalidOperationException(
+        $"Unsupported database provider '{databaseProvider}'. Use Sqlite, PostgreSQL, or SqlServer.");
+}
 
 static void ConfigureDatabaseProvider(DbContextOptionsBuilder options, string databaseProvider, string connectionString)
 {
     switch (databaseProvider.Trim())
     {
+        case "Sqlite":
+        case "SQLite":
+            options.UseSqlite(connectionString);
+            break;
         case "PostgreSQL":
         case "Postgres":
         case "Npgsql":
@@ -48,7 +85,7 @@ static void ConfigureDatabaseProvider(DbContextOptionsBuilder options, string da
             break;
         default:
             throw new InvalidOperationException(
-                $"Unsupported database provider '{databaseProvider}'. Use PostgreSQL or SqlServer.");
+                $"Unsupported database provider '{databaseProvider}'. Use Sqlite, PostgreSQL, or SqlServer.");
     }
 }
 
@@ -77,57 +114,64 @@ builder.Services.AddSession(options =>
 // Build the application
 var app = builder.Build();
 
-// Ensure the databases are created and seed the Identity database with a default admin user.
 await using (var scope = app.Services.CreateAsyncScope())
 {
-    var storeDb = scope.ServiceProvider.GetRequiredService<StoreDbContext>();
-    await storeDb.Database.EnsureCreatedAsync();
-
-    var identityDb = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await identityDb.Database.EnsureCreatedAsync();
-
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-
-    foreach (var roleName in new[] { "Admin", "Customer" })
+    try
     {
-        if (!await roleManager.RoleExistsAsync(roleName))
+        var storeDb = scope.ServiceProvider.GetRequiredService<StoreDbContext>();
+        await storeDb.Database.EnsureCreatedAsync();
+
+        var identityDb = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        await identityDb.Database.EnsureCreatedAsync();
+
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+
+        foreach (var roleName in new[] { "Admin", "Customer" })
         {
-            await roleManager.CreateAsync(new IdentityRole(roleName));
+            if (!await roleManager.RoleExistsAsync(roleName))
+            {
+                await roleManager.CreateAsync(new IdentityRole(roleName));
+            }
+        }
+
+        var adminEmail = builder.Configuration["Admin:Email"];
+        var adminPassword = builder.Configuration["Admin:Password"];
+
+        if (!string.IsNullOrWhiteSpace(adminEmail) && !string.IsNullOrWhiteSpace(adminPassword))
+        {
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            if (adminUser is null)
+            {
+                adminUser = new IdentityUser(adminEmail)
+                {
+                    Email = adminEmail,
+                    EmailConfirmed = true
+                };
+
+                var result = await userManager.CreateAsync(adminUser, adminPassword);
+                if (!result.Succeeded)
+                {
+                    throw new InvalidOperationException(
+                        "Failed to create configured admin user: " + string.Join(", ", result.Errors.Select(error => error.Description)));
+                }
+            }
+
+            if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
+            {
+                var roleResult = await userManager.AddToRoleAsync(adminUser, "Admin");
+                if (!roleResult.Succeeded)
+                {
+                    throw new InvalidOperationException(
+                        "Failed to assign admin role: " + string.Join(", ", roleResult.Errors.Select(error => error.Description)));
+                }
+            }
         }
     }
-
-    var adminEmail = builder.Configuration["Admin:Email"];
-    var adminPassword = builder.Configuration["Admin:Password"];
-
-    if (!string.IsNullOrWhiteSpace(adminEmail) && !string.IsNullOrWhiteSpace(adminPassword))
+    catch (Exception ex)
     {
-        var adminUser = await userManager.FindByEmailAsync(adminEmail);
-        if (adminUser is null)
-        {
-            adminUser = new IdentityUser(adminEmail)
-            {
-                Email = adminEmail,
-                EmailConfirmed = true
-            };
-
-            var result = await userManager.CreateAsync(adminUser, adminPassword);
-            if (!result.Succeeded)
-            {
-                throw new InvalidOperationException(
-                    "Failed to create configured admin user: " + string.Join(", ", result.Errors.Select(error => error.Description)));
-            }
-        }
-
-        if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
-        {
-            var roleResult = await userManager.AddToRoleAsync(adminUser, "Admin");
-            if (!roleResult.Succeeded)
-            {
-                throw new InvalidOperationException(
-                    "Failed to assign admin role: " + string.Join(", ", roleResult.Errors.Select(error => error.Description)));
-            }
-        }
+        app.Logger.LogWarning(ex,
+            "Database initialization failed. The application will continue without automatic database creation. Configure valid database connection strings for full functionality.");
     }
 }
 
@@ -137,7 +181,11 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("PORT")))
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseRouting();
 app.UseSession();
 app.UseAuthentication();
