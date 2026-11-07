@@ -12,6 +12,7 @@
           "Microsoft.AspNetCore.Identity.UI": "10.0.13",
           "Microsoft.EntityFrameworkCore.SqlServer": "10.0.13",
           "Microsoft.EntityFrameworkCore.Sqlite": "10.0.13",
+          "Npgsql": "10.0.0",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "10.0.0",
           "Swashbuckle.AspNetCore": "10.3.0"
         },
