@@ -201,9 +201,66 @@
 // app.Run();
 
 
+
+
+
+
+
+
+
+
+
+
+// var builder = WebApplication.CreateBuilder(args);
+// var app = builder.Build();
+
+// app.MapGet("/", () => "Hello World!");
+
+// app.Run();
+
+
+
+
+
+using Npgsql;
+
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
+// Configuration matching your Python script
+string host = "136.70.44.180"; // GCP VM Public IP
+string dbName = "my_database";
+string dbUser = "postgres";
+string dbPassword = "YourStrongPasswordHere";
+string connectionString = $"Host={host};Port=5432;Database={dbName};Username={dbUser};Password={dbPassword};";
+
+app.MapGet("/", async () =>
+{
+    var records = new List<string>();
+
+    try
+    {
+        using var conn = new NpgsqlConnection(connectionString);
+        await conn.OpenAsync();
+
+        using var cmd = new NpgsqlCommand("SELECT id, username, email, created_at FROM users;", conn);
+        using var reader = await cmd.ExecuteReaderAsync();
+
+        while (await reader.ReadAsync())
+        {
+            var id = reader["id"];
+            var username = reader["username"];
+            var email = reader["email"];
+            var createdAt = reader["created_at"];
+            records.Add($"ID: {id} | Username: {username} | Email: {email} | Created: {createdAt}");
+        }
+
+        return Results.Ok(new { Message = "--- User Records ---", Data = records });
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem($"❌ Connection failed: {ex.Message}");
+    }
+});
 
 app.Run();
